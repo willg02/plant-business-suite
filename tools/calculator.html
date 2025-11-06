@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quick material calculator for landscaping projects - calculate cubic yards of soil, mulch, and compost">
+    <title>Material Calculator | Plant Business Suite</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .calculator-container {
+            max-width: 800px;
+            margin: 3rem auto;
+        }
+
+        .calc-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .calc-card h2 {
+            color: var(--forest-green);
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .calc-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--forest-green);
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--leaf-green);
+        }
+
+        .form-group small {
+            margin-top: 0.25rem;
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, var(--forest-green), var(--leaf-green));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .result-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-box .big-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .result-box .subtext {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .cost-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .cost-item {
+            background: white;
+            color: var(--forest-green);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cost-item strong {
+            display: block;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .cost-item span {
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .helper-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .helper-section h4 {
+            color: var(--forest-green);
+            margin-bottom: 1rem;
+        }
+
+        .helper-section ul {
+            margin-left: 1.5rem;
+        }
+
+        .helper-section li {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .btn-reset {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <h1>📐 Material Calculator</h1>
+            <p class="tagline">Quick calculations for landscaping materials</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <a href="../index.html">← Dashboard</a>
+            <a href="compendium.html">Plant Catalog</a>
+            <a href="estimator.html">Quote Generator</a>
+        </div>
+    </nav>
+
+    <main class="container calculator-container">
+        <div class="calc-card">
+            <h2>🌱 Cubic Yard Calculator</h2>
+            <p>Calculate how much topsoil, compost, or mulch you need for your planting beds.</p>
+            
+            <div class="calc-form">
+                <div class="form-group">
+                    <label for="length">Bed Length (feet)</label>
+                    <input type="number" id="length" min="0" step="0.5" placeholder="20" oninput="calculate()">
+                    <small>Measure the longest side of the bed</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="width">Bed Width (feet)</label>
+                    <input type="number" id="width" min="0" step="0.5" placeholder="10" oninput="calculate()">
+                    <small>Measure the perpendicular side</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="depth">Material Depth (inches)</label>
+                    <input type="number" id="depth" min="0" max="24" step="1" placeholder="12" oninput="calculate()">
+                    <small>Recommended: 12" for new beds, 2-3" for mulch</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Material Type (for cost estimate)</label>
+                    <select id="material" onchange="calculate()">
+                        <option value="45">Topsoil ($45/cubic yard)</option>
+                        <option value="55">Compost ($55/cubic yard)</option>
+                        <option value="40">Mulch ($40/cubic yard)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="results" style="display: none;">
+                <div class="result-box">
+                    <h3>You Need:</h3>
+                    <div class="big-number" id="cubic-yards">0</div>
+                    <div class="subtext">cubic yards</div>
+                    
+                    <div class="cost-breakdown">
+                        <div class="cost-item">
+                            <strong id="square-feet">0</strong>
+                            <span>Square Feet</span>
+                        </div>
+                        <div class="cost-item">
+                            <strong id="material-cost">$0</strong>
+                            <span>Estimated Cost</span>
+                        </div>
+                        <div class="cost-item">
+                            <strong id="bags">0</strong>
+                            <span>2 cu ft bags (approx)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-reset" onclick="reset()">🔄 Reset Calculator</button>
+            </div>
+        </div>
+
+        <div class="calc-card helper-section">
+            <h4>💡 Helpful Tips</h4>
+            <ul>
+                <li><strong>New Planting Beds:</strong> Use 12" of quality topsoil mixed with compost for best results</li>
+                <li><strong>Mulch Top Dressing:</strong> Apply 2-3" of mulch annually to suppress weeds and retain moisture</li>
+                <li><strong>Soil Amendment:</strong> Mix in 2-4" of compost to improve existing soil</li>
+                <li><strong>Delivery Tip:</strong> Most suppliers deliver in full or half cubic yard increments - round up!</li>
+                <li><strong>Compaction:</strong> Materials settle 10-20% after installation, so order slightly more than calculated</li>
+            </ul>
+        </div>
+
+        <div class="calc-card">
+            <h2>📊 Conversion Reference</h2>
+            <ul>
+                <li>1 cubic yard = 27 cubic feet</li>
+                <li>1 cubic yard ≈ 13.5 standard 2 cu ft bags</li>
+                <li>1 cubic yard covers 324 sq ft at 1" depth</li>
+                <li>1 cubic yard covers 162 sq ft at 2" depth</li>
+                <li>1 cubic yard covers 108 sq ft at 3" depth</li>
+                <li>1 cubic yard covers 27 sq ft at 12" depth</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Plant Business Suite. Professional landscaping tools.</p>
+        </div>
+    </footer>
+
+    <script>
+        function calculate() {
+            const length = parseFloat(document.getElementById('length').value) || 0;
+            const width = parseFloat(document.getElementById('width').value) || 0;
+            const depth = parseFloat(document.getElementById('depth').value) || 0;
+            const pricePerYard = parseFloat(document.getElementById('material').value);
+
+            if (length && width && depth) {
+                // Calculate cubic yards: (length × width × depth in inches) / 324
+                const sqFeet = length * width;
+                const cubicYards = (sqFeet * depth) / 324;
+                const cost = cubicYards * pricePerYard;
+                const bags = Math.ceil(cubicYards * 13.5); // 1 cubic yard ≈ 13.5 2-cu-ft bags
+
+                // Display results
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('cubic-yards').textContent = cubicYards.toFixed(1);
+                document.getElementById('square-feet').textContent = sqFeet.toFixed(0);
+                document.getElementById('material-cost').textContent = '$' + cost.toFixed(2);
+                document.getElementById('bags').textContent = bags;
+            } else {
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function reset() {
+            document.getElementById('length').value = '';
+            document.getElementById('width').value = '';
+            document.getElementById('depth').value = '';
+            document.getElementById('material').selectedIndex = 0;
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

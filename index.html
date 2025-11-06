@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional plant installation business platform - Compendium, estimator, and planning tools">
+    <title>Plant Business Suite | Professional Landscaping Tools</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>🌿 Plant Business Suite</h1>
+                <p class="tagline">Professional tools for landscaping & plant installation</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="tools/compendium.html">Plant Catalog</a>
+            <a href="tools/estimator.html">Quote Generator</a>
+            <a href="tools/calculator.html">Material Calculator</a>
+        </div>
+    </nav>
+
+    <main class="container dashboard">
+        <section class="welcome-section">
+            <h2>Welcome to Your Business Hub</h2>
+            <p class="lead">
+                Everything you need to run a professional plant installation business - all in one place.
+                Access your plant catalog, generate client quotes, calculate materials, and more.
+            </p>
+        </section>
+
+        <section class="tools-grid">
+            <div class="tool-card primary">
+                <div class="tool-icon">🌿</div>
+                <h3>Plant Compendium</h3>
+                <p>Browse 30+ curated NC native and ornamental plants with detailed growing information, photos, and supplier links.</p>
+                <div class="tool-features">
+                    <span>✓ Search & Filter</span>
+                    <span>✓ Native Plants</span>
+                    <span>✓ Care Guides</span>
+                </div>
+                <a href="tools/compendium.html" class="btn-primary">Open Catalog →</a>
+            </div>
+
+            <div class="tool-card primary">
+                <div class="tool-icon">💰</div>
+                <h3>Quote Estimator</h3>
+                <p>Create professional landscaping quotes with itemized pricing for site prep, materials, plants, and labor.</p>
+                <div class="tool-features">
+                    <span>✓ Auto Calculations</span>
+                    <span>✓ Print Quotes</span>
+                    <span>✓ Save Projects</span>
+                </div>
+                <a href="tools/estimator.html" class="btn-primary">Create Quote →</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">📐</div>
+                <h3>Material Calculator</h3>
+                <p>Quick calculator for soil, mulch, and compost needs. No quote required - just calculate cubic yards instantly.</p>
+                <div class="tool-features">
+                    <span>✓ Cubic Yards</span>
+                    <span>✓ Cost Estimates</span>
+                    <span>✓ Quick Reference</span>
+                </div>
+                <a href="tools/calculator.html" class="btn-secondary">Calculate →</a>
+            </div>
+
+            <div class="tool-card coming-soon">
+                <div class="tool-icon">🎨</div>
+                <h3>Plant Combination Designer</h3>
+                <p>Visual tool to design plant groupings with automatic compatibility checking and spacing recommendations.</p>
+                <div class="tool-features">
+                    <span>⏳ Coming Soon</span>
+                </div>
+                <button class="btn-disabled" disabled>Coming Soon</button>
+            </div>
+
+            <div class="tool-card coming-soon">
+                <div class="tool-icon">📅</div>
+                <h3>Seasonal Calendar</h3>
+                <p>Interactive timeline showing bloom periods, fall color, and seasonal interest for all plants in the catalog.</p>
+                <div class="tool-features">
+                    <span>⏳ Coming Soon</span>
+                </div>
+                <button class="btn-disabled" disabled>Coming Soon</button>
+            </div>
+
+            <div class="tool-card coming-soon">
+                <div class="tool-icon">📊</div>
+                <h3>Project Manager</h3>
+                <p>Track active projects, client information, installation schedules, and follow-up maintenance plans.</p>
+                <div class="tool-features">
+                    <span>⏳ Coming Soon</span>
+                </div>
+                <button class="btn-disabled" disabled>Coming Soon</button>
+            </div>
+        </section>
+
+        <section class="quick-stats">
+            <h2>Quick Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">Plants in Catalog</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">18</div>
+                    <div class="stat-label">NC Native Species</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Local Suppliers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="saved-quotes">0</div>
+                    <div class="stat-label">Saved Quotes</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2>Platform Features</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🔍</div>
+                    <h4>Advanced Filtering</h4>
+                    <p>Search plants by native status, sun/water needs, type, and characteristics</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    <h4>Data Persistence</h4>
+                    <p>All quotes and preferences saved locally in your browser</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <h4>Mobile Friendly</h4>
+                    <p>Use on-site with tablets and smartphones for client meetings</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🖨️</div>
+                    <h4>Print Ready</h4>
+                    <p>Generate professional quotes optimized for printing or PDF export</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🌱</div>
+                    <h4>Shared Database</h4>
+                    <p>Plant catalog integrates with estimator for accurate pricing</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Fast & Offline</h4>
+                    <p>No backend required - works instantly without internet</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="getting-started">
+            <h2>Getting Started</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Browse the Plant Catalog</h4>
+                    <p>Explore native and ornamental plants suitable for NC. Filter by sun, water, and soil requirements.</p>
+                    <a href="tools/compendium.html" class="btn-link">Open Catalog →</a>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Create Your First Quote</h4>
+                    <p>Use the estimator to calculate site prep, materials, plants, and labor for client projects.</p>
+                    <a href="tools/estimator.html" class="btn-link">Start Estimating →</a>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Quick Material Calculations</h4>
+                    <p>Need cubic yards for soil or mulch? Use the quick calculator for instant results.</p>
+                    <a href="tools/calculator.html" class="btn-link">Calculate Now →</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h2>About This Platform</h2>
+            <p>
+                This unified business suite was built to streamline plant installation workflows. All tools share
+                a common plant database, ensuring consistency across estimates, catalogs, and planning. Perfect for
+                small landscaping businesses, independent contractors, or plant enthusiasts who want professional tools.
+            </p>
+            <div class="tech-stack">
+                <h4>Built With:</h4>
+                <span class="tech-badge">Vue 3</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">CSS3</span>
+                <span class="tech-badge">HTML5</span>
+                <span class="tech-badge">LocalStorage</span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Tools</h4>
+                    <ul>
+                        <li><a href="tools/compendium.html">Plant Compendium</a></li>
+                        <li><a href="tools/estimator.html">Quote Estimator</a></li>
+                        <li><a href="tools/calculator.html">Material Calculator</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#suppliers">Local Suppliers</a></li>
+                        <li><a href="#documentation">Documentation</a></li>
+                        <li><a href="https://github.com/willg02/plant-business-suite" target="_blank">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>info@yourplantcompany.com</p>
+                    <p>North Carolina Piedmont</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Plant Business Suite. Built for professional plant installation services.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Display saved quotes count
+        document.addEventListener('DOMContentLoaded', () => {
+            const quotes = JSON.parse(localStorage.getItem('landscapingQuotes') || '[]');
+            document.getElementById('saved-quotes').textContent = quotes.length;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+/* Global Styles - Shared across all tools */
+
+:root {
+    --forest-green: #2d5016;
+    --sage-green: #7ca982;
+    --earth-brown: #8b6f47;
+    --leaf-green: #4a7c59;
+    --accent-green: #4a7c59;
+    --sky-blue: #87ceeb;
+    --cream: #faf8f3;
+    --warm-white: #ffffff;
+    --text-dark: #2c3e50;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-lg: rgba(0, 0, 0, 0.15);
+    --danger: #dc2626;
+    --success: #10b981;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Header - Shared across all pages */
+.main-header {
+    background: linear-gradient(135deg, var(--forest-green) 0%, var(--leaf-green) 100%);
+    color: white;
+    padding: 2.5rem 0;
+    box-shadow: 0 4px 6px var(--shadow);
+}
+
+.header-content {
+    text-align: center;
+}
+
+.header-content h1 {
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    font-weight: 300;
+}
+
+/* Navigation - Shared across all pages */
+.main-nav {
+    background: white;
+    box-shadow: 0 2px 4px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.main-nav .container {
+    display: flex;
+    gap: 0;
+    padding: 0;
+    overflow-x: auto;
+}
+
+.main-nav a {
+    color: var(--forest-green);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.main-nav a:hover {
+    color: var(--leaf-green);
+    background: var(--cream);
+}
+
+.main-nav a.active {
+    color: var(--leaf-green);
+    border-bottom-color: var(--sage-green);
+    background: var(--cream);
+}
+
+/* Buttons - Shared styles */
+.btn-primary,
+.btn-secondary,
+.btn-link,
+.btn-disabled {
+    display: inline-block;
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--forest-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--leaf-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(45, 80, 22, 0.3);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--forest-green);
+    border: 2px solid var(--forest-green);
+}
+
+.btn-secondary:hover {
+    background: var(--forest-green);
+    color: white;
+}
+
+.btn-link {
+    background: transparent;
+    color: var(--leaf-green);
+    padding: 0.5rem 0;
+    font-weight: 600;
+}
+
+.btn-link:hover {
+    color: var(--forest-green);
+    text-decoration: underline;
+}
+
+.btn-disabled {
+    background: var(--border-color);
+    color: var(--text-light);
+    cursor: not-allowed;
+}
+
+/* Cards - Shared component */
+.card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--shadow);
+    margin-bottom: 2rem;
+}
+
+/* Footer - Shared across all pages */
+footer {
+    background: var(--forest-green);
+    color: white;
+    padding: 3rem 0 1.5rem;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h4 {
+    color: var(--sage-green);
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin: 0.5rem 0;
+}
+
+.footer-section a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.footer-section p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0.25rem 0;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Utility Classes */
+.lead {
+    font-size: 1.15rem;
+    color: var(--text-light);
+    line-height: 1.7;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .main-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .tagline {
+        font-size: 1rem;
+    }
+
+    .main-nav .container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .main-nav a {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus States */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid var(--accent-green);
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .main-nav,
+    footer {
+        display: none;
+    }
+
+    .main-header {
+        padding: 1rem 0;
+    }
+
+    body {
+        background: white;
+    }
+}

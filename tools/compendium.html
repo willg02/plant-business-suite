@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="North Carolina Plant Compendium - Native and ornamental plants for the Piedmont and surrounding regions">
+    <title>NC Plant Compendium | Plant Business Suite</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/compendium.css">
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>🌿 North Carolina Plant Compendium</h1>
+                <p class="tagline">A curated guide to native and ornamental plants for the Piedmont region</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <a href="../index.html">← Dashboard</a>
+            <a href="#catalog">Plant Catalog</a>
+            <a href="#suppliers">Local Suppliers</a>
+            <a href="../tools/estimator.html">Quote Estimator</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Vue App -->
+        <section id="catalog">
+            <div id="app">
+                <!-- Filter Controls -->
+                <div class="filter-section">
+                    <h2>Explore Plants</h2>
+                    
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            v-model="searchQuery" 
+                            placeholder="🔍 Search plants by name, type, or characteristics..."
+                            class="search-input"
+                        >
+                    </div>
+
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label>Native Status</label>
+                            <select v-model="filters.native" class="filter-select">
+                                <option value="all">All Plants</option>
+                                <option value="native">Native Only</option>
+                                <option value="non-native">Ornamental/Non-native</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Plant Type</label>
+                            <select v-model="filters.type" class="filter-select">
+                                <option value="all">All Types</option>
+                                <option value="tree">Trees</option>
+                                <option value="shrub">Shrubs</option>
+                                <option value="perennial">Perennials</option>
+                                <option value="annual">Annuals</option>
+                                <option value="grass">Grasses</option>
+                                <option value="vine">Vines</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Sun Requirements</label>
+                            <select v-model="filters.sun" class="filter-select">
+                                <option value="all">Any Sun</option>
+                                <option value="full sun">Full Sun</option>
+                                <option value="partial shade">Partial Shade</option>
+                                <option value="full shade">Full Shade</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Water Needs</label>
+                            <select v-model="filters.water" class="filter-select">
+                                <option value="all">Any Water Need</option>
+                                <option value="low">Low (Drought Tolerant)</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High (Moist Soil)</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Sort By</label>
+                            <select v-model="sortBy" class="filter-select">
+                                <option value="common">Common Name</option>
+                                <option value="scientific">Scientific Name</option>
+                                <option value="type">Plant Type</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button @click="resetFilters" class="btn-secondary">Clear Filters</button>
+                        <span class="results-count">{{ filteredPlants.length }} plants found</span>
+                    </div>
+                </div>
+
+                <!-- Plant Grid -->
+                <div class="plants-grid">
+                    <transition-group name="plant-fade" tag="div" class="grid-container">
+                        <div 
+                            v-for="plant in filteredPlants" 
+                            :key="plant.id" 
+                            class="plant-card"
+                            @click="viewPlant(plant)"
+                        >
+                            <div class="plant-image">
+                                <img :src="plant.image" :alt="plant.commonName">
+                                <span v-if="plant.native" class="native-badge">🍃 Native</span>
+                            </div>
+                            <div class="plant-info">
+                                <h3>{{ plant.commonName }}</h3>
+                                <p class="scientific-name">{{ plant.scientificName }}</p>
+                                <p class="plant-type">{{ plant.type }}</p>
+                                <div class="plant-icons">
+                                    <span :title="'Sun: ' + plant.sunRequirements">☀️ {{ plant.sunRequirements }}</span>
+                                    <span :title="'Water: ' + plant.waterNeeds">💧 {{ plant.waterNeeds }}</span>
+                                    <span :title="'Zone: ' + plant.hardiness">🌡️ {{ plant.hardiness }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </transition-group>
+
+                    <div v-if="filteredPlants.length === 0" class="no-results">
+                        <p>🌱 No plants match your search criteria.</p>
+                        <button @click="resetFilters" class="btn-primary">Reset Filters</button>
+                    </div>
+                </div>
+
+                <!-- Plant Detail Modal -->
+                <transition name="modal-fade">
+                    <div v-if="selectedPlant" class="modal-overlay" @click="selectedPlant = null">
+                        <div class="modal-content plant-detail-modal" @click.stop>
+                            <button class="modal-close" @click="selectedPlant = null">×</button>
+                            
+                            <div class="modal-body">
+                                <div class="plant-detail-image">
+                                    <img :src="selectedPlant.image" :alt="selectedPlant.commonName">
+                                </div>
+                                
+                                <div class="plant-detail-info">
+                                    <div class="plant-header">
+                                        <h2>{{ selectedPlant.commonName }}</h2>
+                                        <span v-if="selectedPlant.native" class="native-badge-large">🍃 NC Native</span>
+                                    </div>
+                                    <p class="scientific-name-large">{{ selectedPlant.scientificName }}</p>
+                                    
+                                    <div class="detail-section">
+                                        <h3>Overview</h3>
+                                        <p>{{ selectedPlant.description }}</p>
+                                    </div>
+
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <strong>Type:</strong>
+                                            <span>{{ selectedPlant.type }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <strong>Hardiness Zone:</strong>
+                                            <span>{{ selectedPlant.hardiness }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <strong>Mature Size:</strong>
+                                            <span>{{ selectedPlant.matureSize }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <strong>Growth Rate:</strong>
+                                            <span>{{ selectedPlant.growthRate }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-section">
+                                        <h3>Growing Conditions</h3>
+                                        <div class="conditions-grid">
+                                            <div class="condition-item">
+                                                <span class="icon">☀️</span>
+                                                <strong>Sun:</strong> {{ selectedPlant.sunRequirements }}
+                                            </div>
+                                            <div class="condition-item">
+                                                <span class="icon">💧</span>
+                                                <strong>Water:</strong> {{ selectedPlant.waterNeeds }}
+                                            </div>
+                                            <div class="condition-item">
+                                                <span class="icon">🌱</span>
+                                                <strong>Soil:</strong> {{ selectedPlant.soilType }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-section" v-if="selectedPlant.features">
+                                        <h3>Special Features</h3>
+                                        <ul class="features-list">
+                                            <li v-for="feature in selectedPlant.features" :key="feature">{{ feature }}</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="detail-section" v-if="selectedPlant.wildlife">
+                                        <h3>Wildlife Value</h3>
+                                        <p>{{ selectedPlant.wildlife }}</p>
+                                    </div>
+
+                                    <div class="availability-section">
+                                        <p class="availability-note">
+                                            <strong>💡 Availability:</strong> Contact local suppliers below to check current inventory.
+                                        </p>
+                                        <a href="#suppliers" @click="selectedPlant = null" class="btn-primary">View Suppliers</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+            </div>
+        </section>
+
+        <section id="suppliers" class="suppliers-section">
+            <h2>Local Nurseries & Suppliers</h2>
+            <p class="lead">These trusted North Carolina nurseries carry many of the plants in our compendium. Contact them directly for current availability and pricing.</p>
+            
+            <div class="suppliers-grid">
+                <div class="supplier-card">
+                    <h3>Niche Gardens</h3>
+                    <p class="supplier-location">Chapel Hill, NC</p>
+                    <p>Specializing in native plants and perennials. Excellent selection of NC natives.</p>
+                    <div class="supplier-contact">
+                        <a href="https://nichegardens.com" target="_blank">🌐 Website</a>
+                        <a href="tel:9199672091">📞 (919) 967-2091</a>
+                    </div>
+                </div>
+
+                <div class="supplier-card">
+                    <h3>Plant Delights Nursery</h3>
+                    <p class="supplier-location">Raleigh, NC</p>
+                    <p>Wide variety of rare and unusual perennials, including many native selections.</p>
+                    <div class="supplier-contact">
+                        <a href="https://www.plantdelights.com" target="_blank">🌐 Website</a>
+                        <a href="tel:9197726794">📞 (919) 772-6794</a>
+                    </div>
+                </div>
+
+                <div class="supplier-card">
+                    <h3>Camellias of Fayetteville</h3>
+                    <p class="supplier-location">Fayetteville, NC</p>
+                    <p>Family-owned nursery with trees, shrubs, and ornamental plants.</p>
+                    <div class="supplier-contact">
+                        <a href="https://camelliasoffayetteville.com" target="_blank">🌐 Website</a>
+                        <a href="tel:9104831156">📞 (910) 483-1156</a>
+                    </div>
+                </div>
+
+                <div class="supplier-card">
+                    <h3>Carolina Native Nursery</h3>
+                    <p class="supplier-location">Burnsville, NC</p>
+                    <p>Exclusively native plants grown in NC. Great for restoration projects.</p>
+                    <div class="supplier-contact">
+                        <a href="https://www.carolinanativenursery.com" target="_blank">🌐 Website</a>
+                        <a href="tel:8286822589">📞 (828) 682-2589</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="future-feature">
+                <h3>🚀 Coming Soon: Real-Time Inventory</h3>
+                <p>We're working on integrating live inventory data from our supplier partners so you can see availability in real-time. Check back soon!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Plant Business Suite. Professional landscaping tools.</p>
+            <p class="footer-note">Plant information is provided as a general guide. Consult with local experts for specific site recommendations.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/plants-database.js"></script>
+    <script>
+        // Vue 3 Application for NC Plant Compendium
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    plants: plantsData,
+                    searchQuery: '',
+                    filters: {
+                        native: 'all',
+                        type: 'all',
+                        sun: 'all',
+                        water: 'all'
+                    },
+                    sortBy: 'common',
+                    selectedPlant: null
+                };
+            },
+            computed: {
+                filteredPlants() {
+                    let filtered = this.plants;
+
+                    // Filter by native status
+                    if (this.filters.native === 'native') {
+                        filtered = filtered.filter(p => p.native === true);
+                    } else if (this.filters.native === 'non-native') {
+                        filtered = filtered.filter(p => p.native === false);
+                    }
+
+                    // Filter by plant type
+                    if (this.filters.type !== 'all') {
+                        filtered = filtered.filter(p => 
+                            p.type.toLowerCase() === this.filters.type.toLowerCase()
+                        );
+                    }
+
+                    // Filter by sun requirements
+                    if (this.filters.sun !== 'all') {
+                        filtered = filtered.filter(p => 
+                            p.sunRequirements.toLowerCase().includes(this.filters.sun.toLowerCase())
+                        );
+                    }
+
+                    // Filter by water needs
+                    if (this.filters.water !== 'all') {
+                        filtered = filtered.filter(p => 
+                            p.waterNeeds.toLowerCase() === this.filters.water.toLowerCase()
+                        );
+                    }
+
+                    // Filter by search query
+                    if (this.searchQuery) {
+                        const query = this.searchQuery.toLowerCase();
+                        filtered = filtered.filter(p => 
+                            p.commonName.toLowerCase().includes(query) ||
+                            p.scientificName.toLowerCase().includes(query) ||
+                            p.type.toLowerCase().includes(query) ||
+                            p.description.toLowerCase().includes(query) ||
+                            (p.features && p.features.some(f => f.toLowerCase().includes(query)))
+                        );
+                    }
+
+                    // Sort plants
+                    filtered = [...filtered].sort((a, b) => {
+                        switch(this.sortBy) {
+                            case 'common':
+                                return a.commonName.localeCompare(b.commonName);
+                            case 'scientific':
+                                return a.scientificName.localeCompare(b.scientificName);
+                            case 'type':
+                                return a.type.localeCompare(b.type) || a.commonName.localeCompare(b.commonName);
+                            default:
+                                return 0;
+                        }
+                    });
+
+                    return filtered;
+                }
+            },
+            methods: {
+                viewPlant(plant) {
+                    this.selectedPlant = plant;
+                    document.body.style.overflow = 'hidden';
+                },
+                resetFilters() {
+                    this.searchQuery = '';
+                    this.filters = {
+                        native: 'all',
+                        type: 'all',
+                        sun: 'all',
+                        water: 'all'
+                    };
+                    this.sortBy = 'common';
+                }
+            },
+            watch: {
+                selectedPlant(newVal) {
+                    if (!newVal) {
+                        document.body.style.overflow = '';
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

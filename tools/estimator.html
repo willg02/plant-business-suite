@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional landscaping project estimator and quote generator">
+    <title>Landscaping Project Estimator | Plant Business Suite</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/estimator.css">
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <h1>🌿 Landscaping Project Estimator</h1>
+            <p class="tagline">Create professional quotes in minutes</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <a href="../index.html">← Dashboard</a>
+            <a href="compendium.html">Plant Compendium</a>
+            <a href="#quote">Quote Builder</a>
+            <a href="#saved">Saved Quotes</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="app">
+            <!-- Project Information -->
+            <section class="card">
+                <h2>📋 Project Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Client Name *</label>
+                        <input type="text" v-model="project.clientName" placeholder="John & Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Name *</label>
+                        <input type="text" v-model="project.projectName" placeholder="Front Yard Landscape Installation">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Address</label>
+                        <input type="text" v-model="project.address" placeholder="123 Main St, Raleigh, NC">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Date</label>
+                        <input type="date" v-model="project.date">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bed Dimensions & Prep -->
+            <section class="card">
+                <h2>📏 Site Preparation</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Total Planting Area (sq ft)</label>
+                        <input type="number" v-model.number="prep.areaSquareFeet" min="0" placeholder="500">
+                        <small>{{ prep.areaSquareFeet ? (prep.areaSquareFeet / 43560).toFixed(3) + ' acres' : '' }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Bed Depth (inches)</label>
+                        <input type="number" v-model.number="prep.bedDepth" min="0" max="24" placeholder="12">
+                    </div>
+                </div>
+
+                <div class="prep-options">
+                    <h3>Site Prep Services</h3>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" v-model="prep.services.soilTest">
+                            <span>Soil Test (${{ pricing.soilTest }})</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" v-model="prep.services.siteClearing">
+                            <span>Site Clearing (${{ pricing.siteClearing }}/hr)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" v-model="prep.services.grading">
+                            <span>Grading & Leveling (${{ pricing.grading }}/hr)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" v-model="prep.services.edging">
+                            <span>Bed Edging (${{ pricing.edging }}/ft)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" v-if="prep.services.siteClearing">
+                    <label>Site Clearing Hours</label>
+                    <input type="number" v-model.number="prep.clearingHours" min="0" step="0.5" placeholder="4">
+                </div>
+                <div class="form-group" v-if="prep.services.grading">
+                    <label>Grading Hours</label>
+                    <input type="number" v-model.number="prep.gradingHours" min="0" step="0.5" placeholder="3">
+                </div>
+                <div class="form-group" v-if="prep.services.edging">
+                    <label>Edging Linear Feet</label>
+                    <input type="number" v-model.number="prep.edgingFeet" min="0" placeholder="100">
+                </div>
+            </section>
+
+            <!-- Materials -->
+            <section class="card">
+                <h2>🌱 Materials</h2>
+                
+                <h3>Soil & Amendments</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Topsoil (cubic yards)</label>
+                        <input type="number" v-model.number="materials.topsoil" min="0" step="0.5" placeholder="3">
+                        <small>${{ pricing.topsoil }}/cubic yard</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Compost (cubic yards)</label>
+                        <input type="number" v-model.number="materials.compost" min="0" step="0.5" placeholder="2">
+                        <small>${{ pricing.compost }}/cubic yard</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Mulch (cubic yards)</label>
+                        <input type="number" v-model.number="materials.mulch" min="0" step="0.5" placeholder="4">
+                        <small>${{ pricing.mulch }}/cubic yard</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Fertilizer/Amendments ($)</label>
+                        <input type="number" v-model.number="materials.amendments" min="0" step="5" placeholder="50">
+                    </div>
+                </div>
+
+                <div class="helper-box">
+                    <strong>💡 Quick Calculator:</strong>
+                    <p v-if="prep.areaSquareFeet && prep.bedDepth">
+                        For {{ prep.areaSquareFeet }} sq ft at {{ prep.bedDepth }}" depth, you need approximately 
+                        <strong>{{ calculateCubicYards(prep.areaSquareFeet, prep.bedDepth).toFixed(1) }} cubic yards</strong> of material.
+                    </p>
+                    <p v-else>Enter area and depth above for automatic calculation.</p>
+                </div>
+
+                <h3>Irrigation (Optional)</h3>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" v-model="materials.irrigation.drip">
+                        <span>Drip Irrigation System</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" v-model="materials.irrigation.sprinkler">
+                        <span>Sprinkler System</span>
+                    </label>
+                </div>
+                <div class="form-group" v-if="materials.irrigation.drip || materials.irrigation.sprinkler">
+                    <label>Irrigation System Cost ($)</label>
+                    <input type="number" v-model.number="materials.irrigationCost" min="0" placeholder="500">
+                </div>
+            </section>
+
+            <!-- Plants -->
+            <section class="card">
+                <h2>🌿 Plants</h2>
+                <div class="plant-list">
+                    <div v-for="(plant, index) in plants" :key="index" class="plant-item">
+                        <div class="plant-item-grid">
+                            <div class="form-group">
+                                <label>Plant Name</label>
+                                <input type="text" v-model="plant.name" placeholder="Eastern Redbud">
+                            </div>
+                            <div class="form-group">
+                                <label>Size/Container</label>
+                                <input type="text" v-model="plant.size" placeholder="3 gal">
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" v-model.number="plant.quantity" min="0" placeholder="5">
+                            </div>
+                            <div class="form-group">
+                                <label>Unit Price ($)</label>
+                                <input type="number" v-model.number="plant.unitPrice" min="0" step="0.01" placeholder="45.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Markup (%)</label>
+                                <input type="number" v-model.number="plant.markup" min="0" max="200" placeholder="30">
+                            </div>
+                            <div class="plant-item-total">
+                                <strong>Total: ${{ calculatePlantTotal(plant).toFixed(2) }}</strong>
+                            </div>
+                            <button @click="removePlant(index)" class="btn-remove" v-if="plants.length > 1">×</button>
+                        </div>
+                    </div>
+                </div>
+                <button @click="addPlant" class="btn-secondary">+ Add Plant</button>
+            </section>
+
+            <!-- Labor -->
+            <section class="card">
+                <h2>👷 Labor</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Installation Hours</label>
+                        <input type="number" v-model.number="labor.installationHours" min="0" step="0.5" placeholder="16">
+                    </div>
+                    <div class="form-group">
+                        <label>Hourly Rate ($)</label>
+                        <input type="number" v-model.number="labor.hourlyRate" min="0" step="5" placeholder="75">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Crew Members</label>
+                        <input type="number" v-model.number="labor.crewSize" min="1" placeholder="2">
+                    </div>
+                </div>
+                <div class="helper-box">
+                    <p>Total labor: {{ labor.installationHours }} hours × {{ labor.crewSize }} crew @ ${{ labor.hourlyRate }}/hr = 
+                        <strong>${{ (labor.installationHours * labor.crewSize * labor.hourlyRate).toFixed(2) }}</strong>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Additional Services -->
+            <section class="card">
+                <h2>➕ Additional Services</h2>
+                <div class="additional-services">
+                    <div v-for="(service, index) in additionalServices" :key="index" class="service-item">
+                        <div class="service-item-grid">
+                            <div class="form-group">
+                                <label>Service Description</label>
+                                <input type="text" v-model="service.description" placeholder="Landscape lighting installation">
+                            </div>
+                            <div class="form-group">
+                                <label>Cost ($)</label>
+                                <input type="number" v-model.number="service.cost" min="0" step="10" placeholder="500">
+                            </div>
+                            <button @click="removeService(index)" class="btn-remove" v-if="additionalServices.length > 1">×</button>
+                        </div>
+                    </div>
+                </div>
+                <button @click="addService" class="btn-secondary">+ Add Service</button>
+            </section>
+
+            <!-- Quote Settings -->
+            <section class="card">
+                <h2>⚙️ Quote Settings</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tax Rate (%)</label>
+                        <input type="number" v-model.number="settings.taxRate" min="0" max="20" step="0.1" placeholder="7.25">
+                    </div>
+                    <div class="form-group">
+                        <label>Discount ($)</label>
+                        <input type="number" v-model.number="settings.discount" min="0" step="10" placeholder="0">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Quote Valid Until</label>
+                        <input type="date" v-model="settings.validUntil">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quote Summary -->
+            <section class="card quote-summary">
+                <h2>💰 Quote Summary</h2>
+                <div class="summary-breakdown">
+                    <div class="summary-section">
+                        <h3>Site Preparation</h3>
+                        <div class="summary-line" v-if="prep.services.soilTest">
+                            <span>Soil Test</span>
+                            <span>${{ pricing.soilTest.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="prep.services.siteClearing && prep.clearingHours">
+                            <span>Site Clearing ({{ prep.clearingHours }} hrs)</span>
+                            <span>${{ (prep.clearingHours * pricing.siteClearing).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="prep.services.grading && prep.gradingHours">
+                            <span>Grading ({{ prep.gradingHours }} hrs)</span>
+                            <span>${{ (prep.gradingHours * pricing.grading).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="prep.services.edging && prep.edgingFeet">
+                            <span>Bed Edging ({{ prep.edgingFeet }} ft)</span>
+                            <span>${{ (prep.edgingFeet * pricing.edging).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-total">
+                            <strong>Prep Subtotal:</strong>
+                            <strong>${{ prepTotal.toFixed(2) }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <h3>Materials</h3>
+                        <div class="summary-line" v-if="materials.topsoil">
+                            <span>Topsoil ({{ materials.topsoil }} cu yd)</span>
+                            <span>${{ (materials.topsoil * pricing.topsoil).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="materials.compost">
+                            <span>Compost ({{ materials.compost }} cu yd)</span>
+                            <span>${{ (materials.compost * pricing.compost).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="materials.mulch">
+                            <span>Mulch ({{ materials.mulch }} cu yd)</span>
+                            <span>${{ (materials.mulch * pricing.mulch).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="materials.amendments">
+                            <span>Fertilizer/Amendments</span>
+                            <span>${{ materials.amendments.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="materials.irrigationCost">
+                            <span>Irrigation System</span>
+                            <span>${{ materials.irrigationCost.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-total">
+                            <strong>Materials Subtotal:</strong>
+                            <strong>${{ materialsTotal.toFixed(2) }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <h3>Plants</h3>
+                        <div class="summary-line" v-for="(plant, index) in plants" :key="index" v-if="plant.name && plant.quantity">
+                            <span>{{ plant.name }} ({{ plant.quantity }})</span>
+                            <span>${{ calculatePlantTotal(plant).toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-total">
+                            <strong>Plants Subtotal:</strong>
+                            <strong>${{ plantsTotal.toFixed(2) }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <h3>Labor</h3>
+                        <div class="summary-line">
+                            <span>Installation ({{ labor.installationHours }} hrs × {{ labor.crewSize }} crew @ ${{ labor.hourlyRate }}/hr)</span>
+                            <span>${{ laborTotal.toFixed(2) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-section" v-if="additionalServices.some(s => s.description && s.cost)">
+                        <h3>Additional Services</h3>
+                        <div class="summary-line" v-for="(service, index) in additionalServices" :key="index" v-if="service.description && service.cost">
+                            <span>{{ service.description }}</span>
+                            <span>${{ service.cost.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-total">
+                            <strong>Services Subtotal:</strong>
+                            <strong>${{ servicesTotal.toFixed(2) }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-grand-total">
+                        <div class="summary-line large">
+                            <span>Subtotal:</span>
+                            <span>${{ grandSubtotal.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line" v-if="settings.discount">
+                            <span>Discount:</span>
+                            <span>-${{ settings.discount.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Tax ({{ settings.taxRate }}%):</span>
+                            <span>${{ taxAmount.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line grand">
+                            <span>TOTAL:</span>
+                            <span>${{ grandTotal.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-actions">
+                    <button @click="saveQuote" class="btn-primary">💾 Save Quote</button>
+                    <button @click="viewQuote" class="btn-primary">👁️ Preview Quote</button>
+                    <button @click="resetQuote" class="btn-secondary">🔄 Reset</button>
+                </div>
+            </section>
+
+            <!-- Quote Preview Modal -->
+            <transition name="modal-fade">
+                <div v-if="showQuotePreview" class="modal-overlay" @click="showQuotePreview = false">
+                    <div class="modal-content quote-modal" @click.stop>
+                        <button class="modal-close" @click="showQuotePreview = false">×</button>
+                        <div class="quote-document" id="quote-document">
+                            <div class="quote-header">
+                                <h1>🌿 Landscaping Quote</h1>
+                                <p class="quote-number">Quote #{{ Date.now().toString().slice(-6) }}</p>
+                            </div>
+
+                            <div class="quote-info">
+                                <div class="quote-info-section">
+                                    <h3>CLIENT INFORMATION</h3>
+                                    <p><strong>{{ project.clientName }}</strong></p>
+                                    <p>{{ project.address }}</p>
+                                </div>
+                                <div class="quote-info-section">
+                                    <h3>PROJECT</h3>
+                                    <p><strong>{{ project.projectName }}</strong></p>
+                                    <p>Date: {{ formatDate(project.date) }}</p>
+                                    <p v-if="settings.validUntil">Valid Until: {{ formatDate(settings.validUntil) }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Same summary breakdown as above but formatted for printing -->
+                            <div class="quote-breakdown">
+                                <!-- Copy the summary sections here -->
+                                <table class="quote-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-if="prepTotal > 0">
+                                            <td colspan="2"><strong>SITE PREPARATION</strong></td>
+                                        </tr>
+                                        <tr v-if="prep.services.soilTest">
+                                            <td>Soil Test</td>
+                                            <td>${{ pricing.soilTest.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="prep.services.siteClearing && prep.clearingHours">
+                                            <td>Site Clearing ({{ prep.clearingHours }} hrs)</td>
+                                            <td>${{ (prep.clearingHours * pricing.siteClearing).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="prep.services.grading && prep.gradingHours">
+                                            <td>Grading & Leveling ({{ prep.gradingHours }} hrs)</td>
+                                            <td>${{ (prep.gradingHours * pricing.grading).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="prep.services.edging && prep.edgingFeet">
+                                            <td>Bed Edging ({{ prep.edgingFeet }} ft)</td>
+                                            <td>${{ (prep.edgingFeet * pricing.edging).toFixed(2) }}</td>
+                                        </tr>
+                                        
+                                        <tr v-if="materialsTotal > 0">
+                                            <td colspan="2"><strong>MATERIALS</strong></td>
+                                        </tr>
+                                        <tr v-if="materials.topsoil">
+                                            <td>Topsoil ({{ materials.topsoil }} cubic yards)</td>
+                                            <td>${{ (materials.topsoil * pricing.topsoil).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="materials.compost">
+                                            <td>Compost ({{ materials.compost }} cubic yards)</td>
+                                            <td>${{ (materials.compost * pricing.compost).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="materials.mulch">
+                                            <td>Mulch ({{ materials.mulch }} cubic yards)</td>
+                                            <td>${{ (materials.mulch * pricing.mulch).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="materials.amendments">
+                                            <td>Fertilizer & Soil Amendments</td>
+                                            <td>${{ materials.amendments.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="materials.irrigationCost">
+                                            <td>Irrigation System</td>
+                                            <td>${{ materials.irrigationCost.toFixed(2) }}</td>
+                                        </tr>
+                                        
+                                        <tr v-if="plantsTotal > 0">
+                                            <td colspan="2"><strong>PLANTS</strong></td>
+                                        </tr>
+                                        <tr v-for="(plant, index) in plants" :key="index" v-if="plant.name && plant.quantity">
+                                            <td>{{ plant.name }} - {{ plant.size }} (Qty: {{ plant.quantity }})</td>
+                                            <td>${{ calculatePlantTotal(plant).toFixed(2) }}</td>
+                                        </tr>
+                                        
+                                        <tr v-if="laborTotal > 0">
+                                            <td colspan="2"><strong>LABOR</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Installation Labor ({{ labor.installationHours }} hrs × {{ labor.crewSize }} crew @ ${{ labor.hourlyRate }}/hr)</td>
+                                            <td>${{ laborTotal.toFixed(2) }}</td>
+                                        </tr>
+                                        
+                                        <tr v-if="servicesTotal > 0">
+                                            <td colspan="2"><strong>ADDITIONAL SERVICES</strong></td>
+                                        </tr>
+                                        <tr v-for="(service, index) in additionalServices" :key="index" v-if="service.description && service.cost">
+                                            <td>{{ service.description }}</td>
+                                            <td>${{ service.cost.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="subtotal-row">
+                                            <td><strong>Subtotal:</strong></td>
+                                            <td><strong>${{ grandSubtotal.toFixed(2) }}</strong></td>
+                                        </tr>
+                                        <tr v-if="settings.discount">
+                                            <td>Discount:</td>
+                                            <td>-${{ settings.discount.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tax ({{ settings.taxRate }}%):</td>
+                                            <td>${{ taxAmount.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td><strong>TOTAL:</strong></td>
+                                            <td><strong>${{ grandTotal.toFixed(2) }}</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="quote-terms">
+                                <h3>Terms & Conditions</h3>
+                                <ul>
+                                    <li>50% deposit required to schedule work</li>
+                                    <li>Balance due upon completion</li>
+                                    <li>Plant warranty: 1 year with proper care</li>
+                                    <li>Quote valid for 30 days from issue date</li>
+                                    <li>Weather delays may affect timeline</li>
+                                </ul>
+                            </div>
+
+                            <div class="quote-footer">
+                                <p>Thank you for considering our services!</p>
+                                <p><strong>Contact:</strong> info@yourplantcompany.com | (919) 555-0123</p>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button @click="printQuote" class="btn-primary">🖨️ Print Quote</button>
+                            <button @click="showQuotePreview = false" class="btn-secondary">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Plant Business Suite. Professional landscaping tools.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/estimator.js"></script>
+</body>
+</html>
