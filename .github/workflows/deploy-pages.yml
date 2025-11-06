@@ -1,8 +1,9 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (manual only)
 
+# Disabled auto-deploy; using branch-based Pages from main/root instead.
+# You can still run this manually from the Actions tab if desired.
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
