@@ -54,7 +54,11 @@ createApp({
             settings: {
                 taxRate: business.defaultTaxRate || 7.25,
                 discount: 0,
-                validUntil: this.getDatePlusDays(business.quoteValidityDays || 30)
+                validUntil: (() => {
+                    const date = new Date();
+                    date.setDate(date.getDate() + (business.quoteValidityDays || 30));
+                    return date.toISOString().split('T')[0];
+                })()
             },
             pricing: {
                 soilTest: pricing.soilTest || 150,
