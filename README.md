@@ -1,12 +1,18 @@
-# Plant Business Suite
+# Greenline Landscaping - Business Suite
 
-Professional tools for landscaping and plant installation businesses.
+Professional business management platform for Greenline Landscaping - plant installation, design, and landscape services.
+
+## 🌿 About Greenline
+
+Greenline Landscaping is a professional plant installation and landscape design company serving the Raleigh-Durham area and North Carolina Piedmont region. This business suite provides all the tools needed to manage quotes, track projects, and deliver exceptional service to our clients.
 
 ## Features
 
 - **Plant Compendium**: Browse 30+ curated NC native and ornamental plants
-- **Quote Estimator**: Generate professional landscaping quotes
+- **Quote Estimator**: Generate professional landscaping quotes with detailed breakdowns
 - **Material Calculator**: Quick cubic yard calculations for soil, mulch, and compost
+- **Client Management**: Track client information and project history (coming soon)
+- **Project Tracking**: Manage active installations and schedules (coming soon)
 
 ## Tech Stack
 
@@ -15,19 +21,22 @@ Professional tools for landscaping and plant installation businesses.
 - CSS3 (Grid, Flexbox, Custom Properties)
 - HTML5
 - LocalStorage for data persistence
+- Future: IndexedDB for enhanced storage
 
 ## Structure
 
 ```
 plant-business-suite/
-├── index.html              # Dashboard
+├── index.html              # Dashboard (Greenline branded)
+├── SAAS-ROADMAP.md         # Future SaaS platform plans
 ├── assets/
 │   ├── css/
-│   │   ├── global.css      # Shared styles
+│   │   ├── global.css      # Greenline branding & shared styles
 │   │   ├── dashboard.css   # Dashboard styles
 │   │   ├── compendium.css  # Compendium styles
 │   │   └── estimator.css   # Estimator styles
 │   └── js/
+│       ├── config.js       # Greenline company configuration
 │       ├── plants-database.js  # Shared plant data
 │       └── estimator.js        # Estimator logic
 └── tools/
@@ -58,4 +67,4 @@ Then enable GitHub Pages in repository settings.
 
 ## License
 
-Built for professional use. © 2025
+© 2025 Greenline Landscaping. Professional plant installation & design services.

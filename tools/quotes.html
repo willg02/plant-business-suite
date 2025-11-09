@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Greenline Landscaping saved quotes - view, manage, and export your project quotes">
+    <title>Saved Quotes | Greenline Landscaping</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/quotes-viewer.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <h1>🌿 Greenline Saved Quotes</h1>
+            <p class="tagline">View and manage your project quotes</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <a href="../index.html">← Dashboard</a>
+            <a href="compendium.html">Plant Compendium</a>
+            <a href="estimator.html">Create New Quote</a>
+            <a href="#" class="active">Saved Quotes</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="app">
+            <section class="quotes-viewer">
+                <div class="filter-bar">
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        placeholder="🔍 Search quotes by client, project, or quote number..."
+                        class="search-input"
+                    >
+                    <select v-model="sortBy" class="filter-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="client">Client Name</option>
+                        <option value="total-high">Highest Total</option>
+                        <option value="total-low">Lowest Total</option>
+                    </select>
+                    <button @click="exportAllQuotes" class="btn-small btn-export" v-if="filteredQuotes.length">
+                        📥 Export All
+                    </button>
+                </div>
+
+                <div v-if="filteredQuotes.length === 0" class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>{{ quotes.length === 0 ? 'No Saved Quotes Yet' : 'No Matching Quotes' }}</h3>
+                    <p>{{ quotes.length === 0 ? 'Create your first quote using the estimator tool.' : 'Try adjusting your search or filters.' }}</p>
+                    <a href="estimator.html" class="btn-primary">Create New Quote</a>
+                </div>
+
+                <div v-else class="quotes-grid">
+                    <div v-for="(quote, index) in filteredQuotes" :key="index" class="quote-card">
+                        <div class="quote-card-header">
+                            <div class="quote-card-title">
+                                <h3>{{ quote.project.clientName || 'Unnamed Client' }}</h3>
+                                <p>{{ quote.project.projectName || 'Untitled Project' }}</p>
+                            </div>
+                            <div class="quote-number">Quote #{{ quote.quoteNumber || index + 1 }}</div>
+                        </div>
+
+                        <div class="quote-card-details">
+                            <div class="quote-detail">
+                                <span class="quote-detail-label">Date</span>
+                                <span class="quote-detail-value">{{ formatDate(quote.savedAt) }}</span>
+                            </div>
+                            <div class="quote-detail" v-if="quote.project.address">
+                                <span class="quote-detail-label">Location</span>
+                                <span class="quote-detail-value">{{ quote.project.address.split(',')[0] }}</span>
+                            </div>
+                            <div class="quote-detail">
+                                <span class="quote-detail-label">Total</span>
+                                <span class="quote-detail-value quote-total">${{ quote.totals.total.toFixed(2) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="quote-card-actions">
+                            <button @click="viewQuote(quote)" class="btn-small btn-view">👁️ View Details</button>
+                            <button @click="exportQuote(quote)" class="btn-small btn-export">📥 Export</button>
+                            <button @click="deleteQuote(index)" class="btn-small btn-delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quote Detail Modal -->
+            <transition name="modal-fade">
+                <div v-if="selectedQuote" class="modal-overlay" @click="selectedQuote = null">
+                    <div class="modal-content" @click.stop>
+                        <button class="modal-close" @click="selectedQuote = null">×</button>
+                        
+                        <div class="quote-document" id="quote-document">
+                            <div class="quote-header">
+                                <h1>🌿 {{ selectedQuote.company || 'Greenline Landscaping' }}</h1>
+                                <p class="company-tagline">Professional Plant Installation & Design</p>
+                                <p class="quote-number">Quote #{{ selectedQuote.quoteNumber || 'N/A' }}</p>
+                            </div>
+
+                            <div class="quote-info">
+                                <div class="quote-info-section">
+                                    <h3>CLIENT INFORMATION</h3>
+                                    <p><strong>{{ selectedQuote.project.clientName }}</strong></p>
+                                    <p>{{ selectedQuote.project.address }}</p>
+                                </div>
+                                <div class="quote-info-section">
+                                    <h3>PROJECT</h3>
+                                    <p><strong>{{ selectedQuote.project.projectName }}</strong></p>
+                                    <p>Date: {{ formatDate(selectedQuote.project.date) }}</p>
+                                    <p v-if="selectedQuote.settings.validUntil">Valid Until: {{ formatDate(selectedQuote.settings.validUntil) }}</p>
+                                </div>
+                            </div>
+
+                            <div class="quote-breakdown">
+                                <table class="quote-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th style="text-align: right;">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Site Preparation -->
+                                        <tr v-if="selectedQuote.totals.prep > 0">
+                                            <td colspan="2"><strong>SITE PREPARATION</strong></td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.prep.services.soilTest">
+                                            <td>Soil Test</td>
+                                            <td style="text-align: right;">${{ getPricing('soilTest').toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.prep.services.siteClearing && selectedQuote.prep.clearingHours">
+                                            <td>Site Clearing ({{ selectedQuote.prep.clearingHours }} hrs)</td>
+                                            <td style="text-align: right;">${{ (selectedQuote.prep.clearingHours * getPricing('siteClearing')).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.prep.services.grading && selectedQuote.prep.gradingHours">
+                                            <td>Grading & Leveling ({{ selectedQuote.prep.gradingHours }} hrs)</td>
+                                            <td style="text-align: right;">${{ (selectedQuote.prep.gradingHours * getPricing('grading')).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.prep.services.edging && selectedQuote.prep.edgingFeet">
+                                            <td>Bed Edging ({{ selectedQuote.prep.edgingFeet }} ft)</td>
+                                            <td style="text-align: right;">${{ (selectedQuote.prep.edgingFeet * getPricing('edging')).toFixed(2) }}</td>
+                                        </tr>
+
+                                        <!-- Materials -->
+                                        <tr v-if="selectedQuote.totals.materials > 0">
+                                            <td colspan="2"><strong>MATERIALS</strong></td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.materials.topsoil">
+                                            <td>Topsoil ({{ selectedQuote.materials.topsoil }} cubic yards)</td>
+                                            <td style="text-align: right;">${{ (selectedQuote.materials.topsoil * getPricing('topsoil')).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.materials.compost">
+                                            <td>Compost ({{ selectedQuote.materials.compost }} cubic yards)</td>
+                                            <td style="text-align: right;">${{ (selectedQuote.materials.compost * getPricing('compost')).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.materials.mulch">
+                                            <td>Mulch ({{ selectedQuote.materials.mulch }} cubic yards)</td>
+                                            <td style="text-align: right;">${{ (selectedQuote.materials.mulch * getPricing('mulch')).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.materials.amendments">
+                                            <td>Fertilizer & Soil Amendments</td>
+                                            <td style="text-align: right;">${{ selectedQuote.materials.amendments.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.materials.irrigationCost">
+                                            <td>Irrigation System</td>
+                                            <td style="text-align: right;">${{ selectedQuote.materials.irrigationCost.toFixed(2) }}</td>
+                                        </tr>
+
+                                        <!-- Plants -->
+                                        <tr v-if="selectedQuote.totals.plants > 0">
+                                            <td colspan="2"><strong>PLANTS</strong></td>
+                                        </tr>
+                                        <tr v-for="(plant, idx) in selectedQuote.plants" :key="idx" v-if="plant.name && plant.quantity">
+                                            <td>{{ plant.name }} - {{ plant.size }} (Qty: {{ plant.quantity }})</td>
+                                            <td style="text-align: right;">${{ calculatePlantTotal(plant).toFixed(2) }}</td>
+                                        </tr>
+
+                                        <!-- Labor -->
+                                        <tr v-if="selectedQuote.totals.labor > 0">
+                                            <td colspan="2"><strong>LABOR</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Installation Labor ({{ selectedQuote.labor.installationHours }} hrs × {{ selectedQuote.labor.crewSize }} crew @ ${{ selectedQuote.labor.hourlyRate }}/hr)</td>
+                                            <td style="text-align: right;">${{ selectedQuote.totals.labor.toFixed(2) }}</td>
+                                        </tr>
+
+                                        <!-- Additional Services -->
+                                        <tr v-if="selectedQuote.totals.services > 0">
+                                            <td colspan="2"><strong>ADDITIONAL SERVICES</strong></td>
+                                        </tr>
+                                        <tr v-for="(service, idx) in selectedQuote.additionalServices" :key="idx" v-if="service.description && service.cost">
+                                            <td>{{ service.description }}</td>
+                                            <td style="text-align: right;">${{ service.cost.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="subtotal-row">
+                                            <td><strong>Subtotal:</strong></td>
+                                            <td style="text-align: right;"><strong>${{ selectedQuote.totals.subtotal.toFixed(2) }}</strong></td>
+                                        </tr>
+                                        <tr v-if="selectedQuote.settings.discount">
+                                            <td>Discount:</td>
+                                            <td style="text-align: right;">-${{ selectedQuote.settings.discount.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tax ({{ selectedQuote.settings.taxRate }}%):</td>
+                                            <td style="text-align: right;">${{ selectedQuote.totals.tax.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td><strong>TOTAL:</strong></td>
+                                            <td style="text-align: right;"><strong>${{ selectedQuote.totals.total.toFixed(2) }}</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="quote-terms">
+                                <h3>Terms & Conditions</h3>
+                                <ul>
+                                    <li v-for="(term, idx) in terms" :key="idx">{{ term }}</li>
+                                </ul>
+                            </div>
+
+                            <div class="quote-footer">
+                                <p><strong>Thank you for considering Greenline Landscaping!</strong></p>
+                                <p><strong>Contact:</strong> info@greenlinelandscaping.com | (919) 555-GROW (4769)</p>
+                                <p>Serving the Raleigh-Durham area and NC Piedmont region</p>
+                            </div>
+                        </div>
+
+                        <div style="padding: 0 3rem 2rem; display: flex; gap: 1rem; justify-content: center;">
+                            <button @click="printQuote" class="btn-primary">🖨️ Print Quote</button>
+                            <button @click="exportQuote(selectedQuote)" class="btn-secondary">📥 Export JSON</button>
+                            <button @click="selectedQuote = null" class="btn-secondary">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Greenline Landscaping. Professional plant installation & design services.</p>
+        </div>
+    </footer>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    quotes: [],
+                    searchQuery: '',
+                    sortBy: 'newest',
+                    selectedQuote: null,
+                    terms: window.GREENLINE_CONFIG?.terms || [
+                        "50% deposit required to schedule work",
+                        "Balance due upon completion",
+                        "Plant warranty: 1 year with proper care",
+                        "Quote valid for 30 days from issue date",
+                        "Weather delays may affect timeline",
+                        "All plants sourced from local NC nurseries",
+                        "Satisfaction guaranteed"
+                    ]
+                };
+            },
+            computed: {
+                filteredQuotes() {
+                    let filtered = [...this.quotes];
+
+                    // Search filter
+                    if (this.searchQuery) {
+                        const query = this.searchQuery.toLowerCase();
+                        filtered = filtered.filter(q => 
+                            q.project.clientName?.toLowerCase().includes(query) ||
+                            q.project.projectName?.toLowerCase().includes(query) ||
+                            q.project.address?.toLowerCase().includes(query) ||
+                            q.quoteNumber?.toString().includes(query)
+                        );
+                    }
+
+                    // Sort
+                    switch (this.sortBy) {
+                        case 'newest':
+                            filtered.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+                            break;
+                        case 'oldest':
+                            filtered.sort((a, b) => new Date(a.savedAt) - new Date(b.savedAt));
+                            break;
+                        case 'client':
+                            filtered.sort((a, b) => (a.project.clientName || '').localeCompare(b.project.clientName || ''));
+                            break;
+                        case 'total-high':
+                            filtered.sort((a, b) => b.totals.total - a.totals.total);
+                            break;
+                        case 'total-low':
+                            filtered.sort((a, b) => a.totals.total - b.totals.total);
+                            break;
+                    }
+
+                    return filtered;
+                }
+            },
+            methods: {
+                loadQuotes() {
+                    const stored = localStorage.getItem('greenlineQuotes') || localStorage.getItem('landscapingQuotes') || '[]';
+                    this.quotes = JSON.parse(stored);
+                },
+                formatDate(dateString) {
+                    if (!dateString) return 'N/A';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                },
+                viewQuote(quote) {
+                    this.selectedQuote = quote;
+                },
+                exportQuote(quote) {
+                    const dataStr = JSON.stringify(quote, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(dataBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `greenline-quote-${quote.quoteNumber || 'export'}.json`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                },
+                exportAllQuotes() {
+                    const dataStr = JSON.stringify(this.quotes, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(dataBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `greenline-all-quotes-${new Date().toISOString().split('T')[0]}.json`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                },
+                deleteQuote(index) {
+                    const quote = this.quotes[index];
+                    if (confirm(`Delete quote for ${quote.project.clientName}?\n\nThis action cannot be undone.`)) {
+                        this.quotes.splice(index, 1);
+                        localStorage.setItem('greenlineQuotes', JSON.stringify(this.quotes));
+                        
+                        // Also update legacy storage if it exists
+                        if (localStorage.getItem('landscapingQuotes')) {
+                            localStorage.setItem('landscapingQuotes', JSON.stringify(this.quotes));
+                        }
+                    }
+                },
+                printQuote() {
+                    window.print();
+                },
+                calculatePlantTotal(plant) {
+                    if (!plant.quantity || !plant.unitPrice) return 0;
+                    const cost = plant.quantity * plant.unitPrice;
+                    const markup = plant.markup || 0;
+                    return cost * (1 + markup / 100);
+                },
+                getPricing(item) {
+                    const config = window.GREENLINE_CONFIG || {};
+                    return config.pricing?.[item] || 0;
+                }
+            },
+            mounted() {
+                this.loadQuotes();
+                
+                // Prevent body scroll when modal is open
+                this.$watch('selectedQuote', (newVal) => {
+                    document.body.style.overflow = newVal ? 'hidden' : '';
+                });
+            }
+        }).mount('#app');
+    </script>
+
+    <style>
+        .modal-fade-enter-active, .modal-fade-leave-active {
+            transition: opacity 0.3s;
+        }
+        .modal-fade-enter-from, .modal-fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</body>
+</html>

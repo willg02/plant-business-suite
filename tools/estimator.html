@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Professional landscaping project estimator and quote generator">
-    <title>Landscaping Project Estimator | Plant Business Suite</title>
+    <meta name="description" content="Greenline Landscaping professional project estimator and quote generator">
+    <title>Quote Estimator | Greenline Landscaping</title>
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/estimator.css">
     <!-- Vue 3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../assets/js/config.js"></script>
 </head>
 <body>
     <header class="main-header">
         <div class="container">
-            <h1>🌿 Landscaping Project Estimator</h1>
-            <p class="tagline">Create professional quotes in minutes</p>
+            <h1>🌿 Greenline Quote Estimator</h1>
+            <p class="tagline">Create professional landscaping quotes in minutes</p>
         </div>
     </header>
 
@@ -374,15 +375,14 @@
             <!-- Quote Preview Modal -->
             <transition name="modal-fade">
                 <div v-if="showQuotePreview" class="modal-overlay" @click="showQuotePreview = false">
-                    <div class="modal-content quote-modal" @click.stop>
+                        <div class="modal-content quote-modal" @click.stop>
                         <button class="modal-close" @click="showQuotePreview = false">×</button>
                         <div class="quote-document" id="quote-document">
                             <div class="quote-header">
-                                <h1>🌿 Landscaping Quote</h1>
+                                <h1>🌿 Greenline Landscaping</h1>
+                                <p class="company-tagline">Professional Plant Installation & Design</p>
                                 <p class="quote-number">Quote #{{ Date.now().toString().slice(-6) }}</p>
-                            </div>
-
-                            <div class="quote-info">
+                            </div>                            <div class="quote-info">
                                 <div class="quote-info-section">
                                     <h3>CLIENT INFORMATION</h3>
                                     <p><strong>{{ project.clientName }}</strong></p>
@@ -508,8 +508,9 @@
                             </div>
 
                             <div class="quote-footer">
-                                <p>Thank you for considering our services!</p>
-                                <p><strong>Contact:</strong> info@yourplantcompany.com | (919) 555-0123</p>
+                                <p><strong>Thank you for considering Greenline Landscaping!</strong></p>
+                                <p><strong>Contact:</strong> info@greenlinelandscaping.com | (919) 555-GROW (4769)</p>
+                                <p>Serving the Raleigh-Durham area and NC Piedmont region</p>
                             </div>
                         </div>
                         <div class="modal-actions">

@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Professional plant installation business platform - Compendium, estimator, and planning tools">
-    <title>Plant Business Suite | Professional Landscaping Tools</title>
+    <meta name="description" content="Greenline Landscaping - Professional plant installation business platform with tools for quotes, plant catalogs, and project management">
+    <title>Greenline Landscaping | Professional Business Suite</title>
     <link rel="stylesheet" href="assets/css/global.css">
     <link rel="stylesheet" href="assets/css/dashboard.css">
+    <script src="assets/js/config.js"></script>
 </head>
 <body>
     <header class="main-header">
         <div class="container">
             <div class="header-content">
-                <h1>🌿 Plant Business Suite</h1>
-                <p class="tagline">Professional tools for landscaping & plant installation</p>
+                <h1>🌿 Greenline Landscaping</h1>
+                <p class="tagline">Professional Plant Installation & Design</p>
             </div>
         </div>
     </header>
@@ -23,16 +24,18 @@
             <a href="index.html" class="active">Dashboard</a>
             <a href="tools/compendium.html">Plant Catalog</a>
             <a href="tools/estimator.html">Quote Generator</a>
+            <a href="tools/quotes.html">Saved Quotes</a>
             <a href="tools/calculator.html">Material Calculator</a>
         </div>
     </nav>
 
     <main class="container dashboard">
         <section class="welcome-section">
-            <h2>Welcome to Your Business Hub</h2>
+            <h2>Welcome to Greenline Business Hub</h2>
             <p class="lead">
-                Everything you need to run a professional plant installation business - all in one place.
-                Access your plant catalog, generate client quotes, calculate materials, and more.
+                Your complete landscaping business platform - manage quotes, browse our plant catalog, 
+                calculate materials, and track projects. All the tools you need to run a professional 
+                plant installation business in one place.
             </p>
         </section>
 
@@ -122,6 +125,7 @@
                 <div class="stat-card">
                     <div class="stat-number" id="saved-quotes">0</div>
                     <div class="stat-label">Saved Quotes</div>
+                    <a href="tools/quotes.html" style="display: block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--primary);">View All →</a>
                 </div>
             </div>
         </section>
@@ -187,19 +191,20 @@
         </section>
 
         <section class="info-section">
-            <h2>About This Platform</h2>
+            <h2>About Greenline</h2>
             <p>
-                This unified business suite was built to streamline plant installation workflows. All tools share
-                a common plant database, ensuring consistency across estimates, catalogs, and planning. Perfect for
-                small landscaping businesses, independent contractors, or plant enthusiasts who want professional tools.
+                Greenline Landscaping is your trusted partner for professional plant installation and landscape design 
+                in the North Carolina Piedmont region. This business management suite provides all the tools needed to 
+                deliver exceptional service - from initial quotes to project completion. Our integrated platform ensures 
+                accuracy, professionalism, and efficiency in every client interaction.
             </p>
             <div class="tech-stack">
-                <h4>Built With:</h4>
-                <span class="tech-badge">Vue 3</span>
-                <span class="tech-badge">JavaScript</span>
-                <span class="tech-badge">CSS3</span>
-                <span class="tech-badge">HTML5</span>
-                <span class="tech-badge">LocalStorage</span>
+                <h4>Platform Features:</h4>
+                <span class="tech-badge">Quote Generation</span>
+                <span class="tech-badge">Plant Database</span>
+                <span class="tech-badge">Material Calculator</span>
+                <span class="tech-badge">Project Tracking</span>
+                <span class="tech-badge">Client Management</span>
             </div>
         </section>
     </main>
@@ -224,22 +229,29 @@
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Contact</h4>
-                    <p>info@yourplantcompany.com</p>
-                    <p>North Carolina Piedmont</p>
+                    <h4>Contact Greenline</h4>
+                    <p>info@greenlinelandscaping.com</p>
+                    <p>(919) 555-GROW</p>
+                    <p>Raleigh, North Carolina</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Plant Business Suite. Built for professional plant installation services.</p>
+                <p>&copy; 2025 Greenline Landscaping. Professional plant installation & design services.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Display saved quotes count
+        // Display saved quotes count from Greenline system
         document.addEventListener('DOMContentLoaded', () => {
-            const quotes = JSON.parse(localStorage.getItem('landscapingQuotes') || '[]');
+            // Try new Greenline storage first, fallback to legacy
+            const quotes = JSON.parse(localStorage.getItem('greenlineQuotes') || localStorage.getItem('landscapingQuotes') || '[]');
             document.getElementById('saved-quotes').textContent = quotes.length;
+            
+            // Migrate old quotes to new storage if needed
+            if (localStorage.getItem('landscapingQuotes') && !localStorage.getItem('greenlineQuotes')) {
+                localStorage.setItem('greenlineQuotes', localStorage.getItem('landscapingQuotes'));
+            }
         });
     </script>
 </body>

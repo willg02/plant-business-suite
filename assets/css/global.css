@@ -1,21 +1,38 @@
-/* Global Styles - Shared across all tools */
+/* Global Styles - Greenline Landscaping Business Suite */
 
 :root {
+    /* Greenline Brand Colors */
+    --primary: #2d5016;           /* Deep forest green */
+    --primary-light: #4a7c28;     /* Lighter forest green */
+    --secondary: #7cb342;         /* Fresh leaf green */
+    --accent: #8d6e63;            /* Earthy brown */
+    --accent-light: #a1887f;      /* Light earthy brown */
+    
+    /* Legacy color names (for compatibility) */
     --forest-green: #2d5016;
     --sage-green: #7ca982;
-    --earth-brown: #8b6f47;
-    --leaf-green: #4a7c59;
-    --accent-green: #4a7c59;
-    --sky-blue: #87ceeb;
+    --earth-brown: #8d6e63;
+    --leaf-green: #4a7c28;
+    --accent-green: #7cb342;
+    
+    /* UI Colors */
+    --background: #f5f5f0;        /* Warm light background */
     --cream: #faf8f3;
     --warm-white: #ffffff;
-    --text-dark: #2c3e50;
-    --text-light: #6b7280;
-    --border-color: #e5e7eb;
+    --text-dark: #2c2c2c;
+    --text-light: #666666;
+    --border-color: #d0d0c8;
+    
+    /* Shadows */
     --shadow: rgba(0, 0, 0, 0.1);
     --shadow-lg: rgba(0, 0, 0, 0.15);
-    --danger: #dc2626;
-    --success: #10b981;
+    --shadow-xl: rgba(0, 0, 0, 0.2);
+    
+    /* Status Colors */
+    --success: #66bb6a;
+    --warning: #ffa726;
+    --danger: #ef5350;
+    --info: #42a5f5;
 }
 
 * {
@@ -25,10 +42,10 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: var(--text-dark);
-    background: var(--cream);
+    background: var(--background);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -40,12 +57,25 @@ body {
     padding: 0 1.5rem;
 }
 
-/* Header - Shared across all pages */
+/* Header - Greenline Branding */
 .main-header {
-    background: linear-gradient(135deg, var(--forest-green) 0%, var(--leaf-green) 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: white;
     padding: 2.5rem 0;
     box-shadow: 0 4px 6px var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.main-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><path d="M30 15 L30 45 M15 30 L45 30" stroke="rgba(255,255,255,0.03)" stroke-width="2"/></svg>');
+    opacity: 0.3;
 }
 
 .header-content {

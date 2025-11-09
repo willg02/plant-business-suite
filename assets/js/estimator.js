@@ -1,8 +1,14 @@
-// Landscaping Project Estimator - Vue 3 Application
+// Greenline Landscaping - Quote Estimator
+// Vue 3 Application with company configuration
 const { createApp } = Vue;
 
 createApp({
     data() {
+        // Use Greenline config if available, otherwise use defaults
+        const config = window.GREENLINE_CONFIG || {};
+        const pricing = config.pricing || {};
+        const business = config.business || {};
+        
         return {
             project: {
                 clientName: '',
@@ -35,29 +41,29 @@ createApp({
                 irrigationCost: 0
             },
             plants: [
-                { name: '', size: '', quantity: 0, unitPrice: 0, markup: 30 }
+                { name: '', size: '', quantity: 0, unitPrice: 0, markup: pricing.defaultPlantMarkup || 30 }
             ],
             labor: {
                 installationHours: 0,
-                hourlyRate: 75,
-                crewSize: 2
+                hourlyRate: business.defaultLaborRate || 75,
+                crewSize: business.defaultCrewSize || 2
             },
             additionalServices: [
                 { description: '', cost: 0 }
             ],
             settings: {
-                taxRate: 7.25,
+                taxRate: business.defaultTaxRate || 7.25,
                 discount: 0,
-                validUntil: this.getDatePlusDays(30)
+                validUntil: this.getDatePlusDays(business.quoteValidityDays || 30)
             },
             pricing: {
-                soilTest: 150,
-                siteClearing: 85,
-                grading: 95,
-                edging: 3.50,
-                topsoil: 45,
-                compost: 55,
-                mulch: 40
+                soilTest: pricing.soilTest || 150,
+                siteClearing: pricing.siteClearing || 85,
+                grading: pricing.grading || 95,
+                edging: pricing.edging || 3.50,
+                topsoil: pricing.topsoil || 45,
+                compost: pricing.compost || 55,
+                mulch: pricing.mulch || 40
             },
             showQuotePreview: false
         };
@@ -119,7 +125,9 @@ createApp({
             return cost * (1 + markup / 100);
         },
         addPlant() {
-            this.plants.push({ name: '', size: '', quantity: 0, unitPrice: 0, markup: 30 });
+            const config = window.GREENLINE_CONFIG || {};
+            const defaultMarkup = config.pricing?.defaultPlantMarkup || 30;
+            this.plants.push({ name: '', size: '', quantity: 0, unitPrice: 0, markup: defaultMarkup });
         },
         removePlant(index) {
             if (this.plants.length > 1) {
@@ -136,6 +144,7 @@ createApp({
         },
         saveQuote() {
             const quoteData = {
+                company: 'Greenline Landscaping',
                 project: this.project,
                 prep: this.prep,
                 materials: this.materials,
@@ -153,15 +162,16 @@ createApp({
                     tax: this.taxAmount,
                     total: this.grandTotal
                 },
-                savedAt: new Date().toISOString()
+                savedAt: new Date().toISOString(),
+                quoteNumber: Date.now().toString().slice(-6)
             };
 
             // Save to localStorage
-            const quotes = JSON.parse(localStorage.getItem('landscapingQuotes') || '[]');
+            const quotes = JSON.parse(localStorage.getItem('greenlineQuotes') || '[]');
             quotes.push(quoteData);
-            localStorage.setItem('landscapingQuotes', JSON.stringify(quotes));
+            localStorage.setItem('greenlineQuotes', JSON.stringify(quotes));
 
-            alert(`Quote saved successfully!\n\nClient: ${this.project.clientName}\nTotal: $${this.grandTotal.toFixed(2)}\n\nYou can access saved quotes from browser storage.`);
+            alert(`Quote saved successfully!\n\nClient: ${this.project.clientName}\nProject: ${this.project.projectName}\nTotal: $${this.grandTotal.toFixed(2)}\n\nQuote #${quoteData.quoteNumber}`);
         },
         viewQuote() {
             if (!this.project.clientName || !this.project.projectName) {
