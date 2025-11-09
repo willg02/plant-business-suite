@@ -1,18 +1,11 @@
 // Greenline Landscaping - Quote Estimator
 // Vue 3 Application with company configuration
 
-console.log('Estimator.js loading...');
-console.log('Vue available:', typeof Vue !== 'undefined');
+// Minimal mount logging
+console.log('[Estimator] Initializing app');
+const { createApp } = Vue;
 
-if (typeof Vue === 'undefined') {
-    console.error('Vue is not loaded! Check if CDN is accessible.');
-    document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>Error: Vue.js failed to load</h1><p>Please check your internet connection and refresh the page.</p></div>';
-} else {
-    const { createApp } = Vue;
-    console.log('Creating Vue app...');
-
-    try {
-        const app = createApp({
+createApp({
     data() {
         // Use Greenline config if available, otherwise use defaults
         const config = window.GREENLINE_CONFIG || {};
@@ -335,20 +328,5 @@ if (typeof Vue === 'undefined') {
             }
         }
     }
-});
-
-        console.log('Mounting Vue app to #app...');
-        app.mount('#app');
-        console.log('Vue app mounted successfully!');
-        
-    } catch (error) {
-        console.error('Error creating/mounting Vue app:', error);
-        document.getElementById('app').innerHTML = `
-            <div style="padding: 2rem; background: #fee2e2; border: 2px solid #dc2626; border-radius: 8px; margin: 2rem;">
-                <h2 style="color: #dc2626;">Application Error</h2>
-                <p><strong>Error:</strong> ${error.message}</p>
-                <p>Check the browser console for more details.</p>
-            </div>
-        `;
-    }
-}
+}).mount('#app');
+console.log('[Estimator] App mounted');
