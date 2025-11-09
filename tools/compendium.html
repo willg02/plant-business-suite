@@ -10,6 +10,7 @@
     <!-- Vue 3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/plant-image-service.js"></script>
 </head>
 <body>
     <header class="main-header">
@@ -103,6 +104,12 @@
                     <div class="filter-actions">
                         <button @click="resetFilters" class="btn-secondary">Clear Filters</button>
                         <span class="results-count">{{ filteredPlants.length }} plants found</span>
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div v-if="imagesLoading" class="loading-indicator">
+                        <div class="loading-spinner"></div>
+                        <p>🌿 Loading real plant images... ({{ loadedCount }}/{{ plants.length }})</p>
                     </div>
                 </div>
 
@@ -279,14 +286,14 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 Plant Business Suite. Professional landscaping tools.</p>
-            <p class="footer-note">Plant information is provided as a general guide. Consult with local experts for specific site recommendations.</p>
+            <p>&copy; 2025 Greenline Landscaping. Professional plant installation & design services.</p>
+            <p class="footer-note">Plant information is provided as a general guide. Images sourced from Wikipedia Commons where available. Consult with local experts for specific site recommendations.</p>
         </div>
     </footer>
 
     <script src="../assets/js/plants-database.js"></script>
     <script>
-        // Vue 3 Application for NC Plant Compendium
+        // Vue 3 Application for NC Plant Compendium with Dynamic Image Loading
         const { createApp } = Vue;
 
         createApp({
@@ -301,8 +308,14 @@
                         water: 'all'
                     },
                     sortBy: 'common',
-                    selectedPlant: null
+                    selectedPlant: null,
+                    imagesLoading: true,
+                    loadedCount: 0
                 };
+            },
+            async mounted() {
+                // Load real plant images from Wikipedia
+                await this.loadPlantImages();
             },
             computed: {
                 filteredPlants() {
@@ -366,6 +379,49 @@
                 }
             },
             methods: {
+                async loadPlantImages() {
+                    console.log('🌿 Loading real plant images from Wikipedia...');
+                    this.imagesLoading = true;
+                    
+                    // Load images for all plants
+                    const imagePromises = this.plants.map(async (plant, index) => {
+                        try {
+                            // Try Wikipedia first
+                            const wikiImage = await PlantImageService.fetchFromWikipedia(plant.scientificName);
+                            
+                            if (wikiImage) {
+                                plant.image = wikiImage;
+                                console.log(`✅ Loaded: ${plant.commonName}`);
+                            } else {
+                                // Generate branded placeholder if Wikipedia doesn't have image
+                                plant.image = PlantImageService.generatePlaceholder(plant.commonName, {
+                                    bgColor: '#4a7c28',
+                                    textColor: '#ffffff'
+                                });
+                                console.log(`📋 Placeholder: ${plant.commonName}`);
+                            }
+                            
+                            this.loadedCount++;
+                        } catch (error) {
+                            console.warn(`⚠️ Error loading ${plant.commonName}:`, error);
+                            // Use placeholder on error
+                            plant.image = PlantImageService.generatePlaceholder(plant.commonName, {
+                                bgColor: '#4a7c28',
+                                textColor: '#ffffff'
+                            });
+                            this.loadedCount++;
+                        }
+                    });
+                    
+                    // Wait for all images to load or timeout after 5 seconds per image
+                    await Promise.allSettled(imagePromises);
+                    
+                    this.imagesLoading = false;
+                    console.log(`🎉 Loaded ${this.loadedCount}/${this.plants.length} plant images`);
+                    
+                    // Save image cache
+                    PlantImageService.saveCache();
+                },
                 viewPlant(plant) {
                     this.selectedPlant = plant;
                     document.body.style.overflow = 'hidden';
