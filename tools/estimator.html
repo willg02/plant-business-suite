@@ -258,6 +258,164 @@
                 </div>
             </section>
 
+            <!-- Cost Analysis (Internal) -->
+            <section class="card cost-analysis">
+                <div class="cost-analysis-header" @click="showCostAnalysis = !showCostAnalysis">
+                    <h2>📊 Cost Analysis (Internal)</h2>
+                    <button class="toggle-btn">{{ showCostAnalysis ? '▼' : '▶' }}</button>
+                </div>
+                <transition name="slide-fade">
+                    <div v-show="showCostAnalysis" class="cost-analysis-content">
+                        <div class="cost-comparison">
+                            <div class="cost-column">
+                                <h3>💸 Your Costs</h3>
+                                <div class="cost-breakdown">
+                                    <div class="cost-line">
+                                        <span>Plants (Wholesale):</span>
+                                        <span>${{ internalCosts.plants.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Materials:</span>
+                                        <span>${{ internalCosts.materials.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Labor (Crew Cost):</span>
+                                        <span>${{ internalCosts.labor.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Subcontracted Services:</span>
+                                        <span>${{ internalCosts.services.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Equipment & Overhead:</span>
+                                        <input type="number" v-model.number="overhead.equipment" min="0" step="10" placeholder="0" class="cost-input">
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Transportation/Fuel:</span>
+                                        <input type="number" v-model.number="overhead.transportation" min="0" step="5" placeholder="0" class="cost-input">
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Insurance/Permits:</span>
+                                        <input type="number" v-model.number="overhead.insurance" min="0" step="10" placeholder="0" class="cost-input">
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Miscellaneous Costs:</span>
+                                        <input type="number" v-model.number="overhead.misc" min="0" step="5" placeholder="0" class="cost-input">
+                                    </div>
+                                    <div class="cost-total">
+                                        <strong>Total Costs:</strong>
+                                        <strong class="cost-amount">${{ totalInternalCost.toFixed(2) }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cost-column">
+                                <h3>💰 Client Quote</h3>
+                                <div class="cost-breakdown">
+                                    <div class="cost-line">
+                                        <span>Plants (w/ Markup):</span>
+                                        <span>${{ plantsTotal.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Materials:</span>
+                                        <span>${{ materialsTotal.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Labor (Billed Rate):</span>
+                                        <span>${{ laborTotal.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Site Prep:</span>
+                                        <span>${{ prepTotal.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Additional Services:</span>
+                                        <span>${{ servicesTotal.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-line">
+                                        <span>Discount:</span>
+                                        <span class="cost-discount">-${{ settings.discount.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="cost-total">
+                                        <strong>Quote Subtotal:</strong>
+                                        <strong class="quote-amount">${{ (grandSubtotal - settings.discount).toFixed(2) }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profit-analysis">
+                            <div class="profit-card" :class="profitClass">
+                                <div class="profit-stat">
+                                    <span class="profit-label">Gross Profit</span>
+                                    <span class="profit-value">${{ grossProfit.toFixed(2) }}</span>
+                                </div>
+                                <div class="profit-stat">
+                                    <span class="profit-label">Profit Margin</span>
+                                    <span class="profit-value">{{ profitMargin.toFixed(1) }}%</span>
+                                </div>
+                                <div class="profit-stat">
+                                    <span class="profit-label">Markup</span>
+                                    <span class="profit-value">{{ markup.toFixed(1) }}%</span>
+                                </div>
+                            </div>
+
+                            <div class="profit-insights">
+                                <div class="insight-box" v-if="profitMargin < 15">
+                                    <span class="insight-icon">⚠️</span>
+                                    <span class="insight-text">Low margin - Consider increasing prices or reducing costs</span>
+                                </div>
+                                <div class="insight-box" v-else-if="profitMargin < 25">
+                                    <span class="insight-icon">✅</span>
+                                    <span class="insight-text">Acceptable margin - Room for improvement</span>
+                                </div>
+                                <div class="insight-box" v-else-if="profitMargin < 40">
+                                    <span class="insight-icon">🎯</span>
+                                    <span class="insight-text">Good margin - Competitive pricing with healthy profit</span>
+                                </div>
+                                <div class="insight-box" v-else>
+                                    <span class="insight-icon">💎</span>
+                                    <span class="insight-text">Excellent margin - Strong profitability</span>
+                                </div>
+
+                                <div class="break-even-box">
+                                    <h4>Break-Even Analysis</h4>
+                                    <p>Minimum quote to cover costs: <strong>${{ totalInternalCost.toFixed(2) }}</strong></p>
+                                    <p>Target price (30% margin): <strong>${{ (totalInternalCost * 1.43).toFixed(2) }}</strong></p>
+                                    <p>Current quote status: 
+                                        <strong :class="quoteStatusClass">
+                                            {{ quoteStatus }}
+                                        </strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="labor-cost-calculator">
+                            <h4>⚙️ Labor Cost Settings</h4>
+                            <div class="labor-settings-grid">
+                                <div class="form-group">
+                                    <label>Crew Hourly Cost ($)</label>
+                                    <input type="number" v-model.number="laborCosts.crewHourlyCost" min="0" step="5" placeholder="25">
+                                    <small>What you pay per crew member per hour</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Benefits & Overhead (%)</label>
+                                    <input type="number" v-model.number="laborCosts.overheadPercent" min="0" max="100" step="5" placeholder="30">
+                                    <small>Taxes, insurance, workers comp, etc.</small>
+                                </div>
+                            </div>
+                            <div class="labor-breakdown-info">
+                                <p><strong>Total Labor Cost to You:</strong> ${{ internalCosts.labor.toFixed(2) }}</p>
+                                <p><strong>Labor Billed to Client:</strong> ${{ laborTotal.toFixed(2) }}</p>
+                                <p><strong>Labor Profit:</strong> ${{ (laborTotal - internalCosts.labor).toFixed(2) }} 
+                                    ({{ laborTotal > 0 ? (((laborTotal - internalCosts.labor) / laborTotal) * 100).toFixed(1) : 0 }}% margin)</p>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+            </section>
+
             <!-- Quote Summary -->
             <section class="card quote-summary">
                 <h2>💰 Quote Summary</h2>

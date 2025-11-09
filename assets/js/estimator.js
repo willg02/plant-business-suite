@@ -65,6 +65,18 @@ createApp({
                 compost: pricing.compost || 55,
                 mulch: pricing.mulch || 40
             },
+            // Cost Analysis (Internal)
+            showCostAnalysis: false,
+            overhead: {
+                equipment: 0,
+                transportation: 0,
+                insurance: 0,
+                misc: 0
+            },
+            laborCosts: {
+                crewHourlyCost: 25,  // What you pay crew per hour
+                overheadPercent: 30   // Benefits, taxes, insurance overhead
+            },
             showQuotePreview: false
         };
     },
@@ -110,6 +122,64 @@ createApp({
         },
         grandTotal() {
             return this.grandSubtotal - this.settings.discount + this.taxAmount;
+        },
+        // Cost Analysis Computed Properties
+        internalCosts() {
+            return {
+                // Wholesale plant costs (no markup)
+                plants: this.plants.reduce((sum, plant) => {
+                    return sum + ((plant.quantity || 0) * (plant.unitPrice || 0));
+                }, 0),
+                // Materials at cost
+                materials: this.materialsTotal,
+                // Labor at actual crew cost
+                labor: this.labor.installationHours * this.labor.crewSize * 
+                       this.laborCosts.crewHourlyCost * (1 + this.laborCosts.overheadPercent / 100),
+                // Services at cost (assuming 70% of billed rate is your cost)
+                services: (this.prepTotal + this.servicesTotal) * 0.7
+            };
+        },
+        totalInternalCost() {
+            return this.internalCosts.plants + 
+                   this.internalCosts.materials + 
+                   this.internalCosts.labor + 
+                   this.internalCosts.services +
+                   this.overhead.equipment +
+                   this.overhead.transportation +
+                   this.overhead.insurance +
+                   this.overhead.misc;
+        },
+        grossProfit() {
+            return (this.grandSubtotal - this.settings.discount) - this.totalInternalCost;
+        },
+        profitMargin() {
+            const quoteTotal = this.grandSubtotal - this.settings.discount;
+            if (quoteTotal === 0) return 0;
+            return (this.grossProfit / quoteTotal) * 100;
+        },
+        markup() {
+            if (this.totalInternalCost === 0) return 0;
+            return (this.grossProfit / this.totalInternalCost) * 100;
+        },
+        profitClass() {
+            if (this.profitMargin < 15) return 'profit-low';
+            if (this.profitMargin < 25) return 'profit-fair';
+            if (this.profitMargin < 40) return 'profit-good';
+            return 'profit-excellent';
+        },
+        quoteStatus() {
+            if (this.grossProfit < 0) return '⛔ Below Cost - Losing Money';
+            if (this.profitMargin < 15) return '⚠️ Low Margin - Risky';
+            if (this.profitMargin < 25) return '✅ Acceptable';
+            if (this.profitMargin < 40) return '🎯 Good Profit';
+            return '💎 Excellent Profit';
+        },
+        quoteStatusClass() {
+            if (this.grossProfit < 0) return 'status-loss';
+            if (this.profitMargin < 15) return 'status-low';
+            if (this.profitMargin < 25) return 'status-fair';
+            if (this.profitMargin < 40) return 'status-good';
+            return 'status-excellent';
         }
     },
     methods: {
