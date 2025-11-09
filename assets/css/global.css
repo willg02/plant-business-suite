@@ -42,13 +42,15 @@
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
     line-height: 1.6;
     color: var(--text-dark);
-    background: var(--background);
+    background: linear-gradient(135deg, #f5f5f0 0%, #faf8f3 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
@@ -131,7 +133,7 @@ body {
     background: var(--cream);
 }
 
-/* Buttons - Shared styles */
+/* Buttons - Modern elevated design */
 .btn-primary,
 .btn-secondary,
 .btn-link,
@@ -139,36 +141,65 @@ body {
     display: inline-block;
     padding: 0.875rem 1.75rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 1rem;
     font-family: inherit;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before,
+.btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before,
+.btn-secondary:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .btn-primary {
-    background: var(--forest-green);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: white;
+    position: relative;
+    z-index: 1;
 }
 
 .btn-primary:hover {
-    background: var(--leaf-green);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(45, 80, 22, 0.3);
+    box-shadow: 0 8px 20px rgba(45, 80, 22, 0.25);
 }
 
 .btn-secondary {
     background: white;
-    color: var(--forest-green);
-    border: 2px solid var(--forest-green);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    position: relative;
+    z-index: 1;
 }
 
 .btn-secondary:hover {
-    background: var(--forest-green);
+    background: var(--primary);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(45, 80, 22, 0.25);
 }
 
 .btn-link {
@@ -189,13 +220,20 @@ body {
     cursor: not-allowed;
 }
 
-/* Cards - Shared component */
+/* Cards - Modern elevated design */
 .card {
     background: white;
     padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px var(--shadow);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     margin-bottom: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
 
 /* Footer - Shared across all pages */
